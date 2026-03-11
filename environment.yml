@@ -1,0 +1,68 @@
+name: renai
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Core
+  - python=3.9
+  - pip
+
+  # Data Science
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - plotly
+
+  # Notebook / Development
+  - jupyterlab
+  - ipykernel
+
+  # API
+  - fastapi
+  - uvicorn
+  - pydantic
+
+  # Database
+  - sqlalchemy
+  - psycopg2
+
+  # Utilities
+  - python-dotenv
+  - pyyaml
+  - tqdm
+
+  - pip:
+      # MLOps
+      - dvc
+      - mlflow
+
+      # Cloud platforms
+      - azureml-core
+      - azureml-mlflow
+      - google-cloud-aiplatform
+
+      # Deep learning / NLP
+      - torch
+      - transformers
+
+      # Explainability
+      - shap
+
+      # Dashboard
+      - streamlit
+
+      # Supabase
+      - supabase
+
+      # Web scraping
+      - beautifulsoup4
+      - requests
+
+      # Monitoring
+      - prometheus-client
+      - grafana-api

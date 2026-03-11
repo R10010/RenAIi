@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14
+    container_name: renai-postgres
+    environment:
+      POSTGRES_DB: renai
+      POSTGRES_USER: renai_user
+      POSTGRES_PASSWORD: renai_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U renai_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - renai-network
+
+  # MLflow Tracking Server
+  mlflow:
+    build:
+      context: ..
+      dockerfile: docker/ml/Dockerfile
+    container_name: renai-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    command: mlflow server --host 0.0.0.0 --backend-store-uri sqlite:///mlflow/mlflow.db --default-artifact-root /mlflow/artifacts
+    networks:
+      - renai-network
+
+  # Backend API
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend/Dockerfile
+    container_name: renai-backend
+    environment:
+      DATABASE_URL: postgresql://renai_user:renai_password@postgres:5432/renai
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+    volumes:
+      - ../ml_pipeline/models:/app/ml_pipeline/models
+      - ../data:/app/data
+    networks:
+      - renai-network
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    container_name: renai-frontend
+    environment:
+      REACT_APP_API_URL: http://backend:8000
+      REACT_APP_SUPABASE_URL: ${SUPABASE_URL}
+      REACT_APP_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - renai-network
+    restart: unless-stopped
+
+  # Streamlit Dashboard
+  dashboard:
+    build:
+      context: ..
+      dockerfile: docker/dashboard/Dockerfile
+    container_name: renai-dashboard
+    environment:
+      API_URL: http://backend:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    networks:
+      - renai-network
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: renai-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - renai-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: renai-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - renai-network
+
+volumes:
+  postgres_data:
+  mlflow_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  renai-network:
+    driver: bridge
