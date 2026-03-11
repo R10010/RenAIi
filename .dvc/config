@@ -1,0 +1,10 @@
+[core]
+    remote = local
+['remote "local"']
+    url = C:\Users\R\dvc-remote
+['remote "gdrive"']
+    url = gdrive://1ppGEhD6mZ_yBrrtzj2vEFTNdGAGy2IWD
+    gdrive_use_service_account = false
+['remote "azure"']
+    url = azure://renaidata/container
+    connection_string = DefaultEndpointsProtocol=https;AccountName=renaidata;AccountKey=eDJU9P6RQvqxi6cRelUKWVecslc3HofZd8o3uswZZBzBrAM5CeRTWjc4bWOLWmtgeEHJdT84wQUt+AStBEbQGA==;EndpointSuffix=core.windows.net
