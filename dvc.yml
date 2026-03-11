@@ -1,0 +1,48 @@
+stages:
+  download_data:
+    cmd: python ml_pipeline/src/data/download_data.py
+    deps:
+    - ml_pipeline/src/data/download_data.py
+    params:
+    - data.raw_path
+    outs:
+    - ml_pipeline/data/raw/user_events.csv
+    metrics:
+    - ml_pipeline/reports/data_stats.json:
+        cache: false
+
+  prepare_features:
+    cmd: python ml_pipeline/src/features/build_features.py
+    deps:
+    - ml_pipeline/src/features/build_features.py
+    - ml_pipeline/data/raw/user_events.csv
+    params:
+    - features.engineering
+    outs:
+    - ml_pipeline/data/features/features.parquet
+    metrics:
+    - ml_pipeline/reports/feature_stats.json:
+        cache: false
+
+  train_churn_model:
+    cmd: python ml_pipeline/src/models/train_churn.py
+    deps:
+    - ml_pipeline/src/models/train_churn.py
+    - ml_pipeline/data/features/features.parquet
+    params:
+    - models.churn
+    outs:
+    - ml_pipeline/models/churn/model.pkl
+    metrics:
+    - ml_pipeline/reports/churn_metrics.json:
+        cache: false
+
+  evaluate_model:
+    cmd: python ml_pipeline/src/evaluate_models.py
+    deps:
+    - ml_pipeline/src/evaluate_models.py
+    - ml_pipeline/models/churn/model.pkl
+    - ml_pipeline/data/features/features.parquet
+    metrics:
+    - ml_pipeline/reports/evaluation.json:
+        cache: false
