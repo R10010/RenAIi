@@ -1,0 +1,6 @@
+outs:
+- md5: 8dade02e055b5480719974c408181f04.dir
+  size: 111
+  nfiles: 1
+  hash: md5
+  path: meta

@@ -1,0 +1,6 @@
+outs:
+- md5: 8633e62275e8cf25b4f6a12280a562d9.dir
+  size: 58
+  nfiles: 2
+  hash: md5
+  path: nvidia
