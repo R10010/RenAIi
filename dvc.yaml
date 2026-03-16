@@ -1,0 +1,21 @@
+stages:
+  download_data:
+    cmd: python scripts/datasets/download_telco_churn.py
+    deps:
+    - scripts/datasets/download_telco_churn.py
+    outs:
+    - data/raw/churn/telco_churn.csv
+
+  train_churn:
+    cmd: python ml_pipeline/src/models/train_churn.py
+    deps:
+    - data/raw/churn/telco_churn.csv
+    - ml_pipeline/src/models/train_churn.py
+    params:
+    - models.churn.n_estimators
+    - models.churn.max_depth
+    outs:
+    - ml_pipeline/models/churn/model.pkl
+    metrics:
+    - ml_pipeline/reports/churn_metrics.json:
+        cache: false
