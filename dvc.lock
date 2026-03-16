@@ -1,0 +1,38 @@
+schema: '2.0'
+stages:
+  download_data:
+    cmd: python scripts/datasets/download_telco_churn.py
+    deps:
+    - path: scripts/datasets/download_telco_churn.py
+      hash: md5
+      md5: b88d897d81dd07f49b1554623ec5a1e9
+      size: 527
+    outs:
+    - path: data/raw/churn/telco_churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+  train_churn:
+    cmd: python ml_pipeline/src/models/train_churn.py
+    deps:
+    - path: data/raw/churn/telco_churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+    - path: ml_pipeline/src/models/train_churn.py
+      hash: md5
+      md5: 32c402d81f00f920bd8ad7fa64685f8c
+      size: 4278
+    params:
+      params.yaml:
+        models.churn.max_depth: 10
+        models.churn.n_estimators: 100
+    outs:
+    - path: ml_pipeline/models/churn/model.pkl
+      hash: md5
+      md5: 1662cb28c96988ff3471dafc7d3d63ba
+      size: 14492313
+    - path: ml_pipeline/reports/churn_metrics.json
+      hash: md5
+      md5: b7cd352417066360f5f4cbd26078f652
+      size: 150
