@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -26,6 +25,7 @@ avatar = Emotional3DAvatar()
 # Churn model variable
 churn_model = None
 
+
 # Load churn model when server starts
 @app.on_event("startup")
 async def load_churn_model():
@@ -38,13 +38,16 @@ async def load_churn_model():
     else:
         print("Churn model not found")
 
+
 # ---------------------------
 # Request Schemas
 # ---------------------------
 
+
 class ChatRequest(BaseModel):
     text: str
     user_id: str = "guest"
+
 
 class ChurnRequest(BaseModel):
     features: dict
@@ -54,19 +57,18 @@ class ChurnRequest(BaseModel):
 # Chat Endpoint
 # ---------------------------
 
+
 @app.post("/api/chat")
 async def chat_endpoint(req: ChatRequest):
     avatar_state = avatar.process_speech(req.text)
 
-    return {
-        "message": f"Echo: {req.text}",
-        "avatar": avatar_state
-    }
+    return {"message": f"Echo: {req.text}", "avatar": avatar_state}
 
 
 # ---------------------------
 # Churn Prediction Endpoint
 # ---------------------------
+
 
 @app.post("/api/predict/churn")
 async def predict_churn(req: ChurnRequest):
@@ -80,14 +82,13 @@ async def predict_churn(req: ChurnRequest):
     # Predict probability
     proba = churn_model.predict_proba(df)[0][1]
 
-    return {
-        "churn_probability": float(proba)
-    }
+    return {"churn_probability": float(proba)}
 
 
 # ---------------------------
 # Avatar WebSocket
 # ---------------------------
+
 
 @app.websocket("/ws/avatar")
 async def websocket_endpoint(websocket: WebSocket):
@@ -110,6 +111,7 @@ async def websocket_endpoint(websocket: WebSocket):
 # ---------------------------
 # Health Check
 # ---------------------------
+
 
 @app.get("/health")
 async def health():
