@@ -30,7 +30,7 @@ jobs:
       run: black backend/ ml_pipeline/
 
     - name: Run Flake8
-      run: flake8 backend/ ml_pipeline/ || truename: RenAI Complete CI/CD
+      run: flake8 backend/ ml_pipeline/ || true
 
 on:
   push:
