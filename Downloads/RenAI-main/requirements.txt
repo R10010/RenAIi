@@ -16,7 +16,7 @@ python-dotenv==1.0.0
 pyyaml==6.0
 tqdm==4.64.1
 pytest==7.4.0
-black
+black==21.12b0
 flake8==6.1.0
 azureml-core
 azureml-mlflow==1.48.0
