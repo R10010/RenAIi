@@ -25,10 +25,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 black
 
-      # ✅ Only check safe folders (avoid null byte error)
+      # ✅ Only scan safe folders (no null byte error)
       - name: Run Flake8
         run: |
-          flake8 backend frontend ml_pipeline --count --select=E9,F63,F7,F82 --show-source --statistics || true
+          flake8 Downloads/RenAI-main/backend \
+                 Downloads/RenAI-main/frontend \
+                 Downloads/RenAI-main/ml_pipeline \
+                 --count --select=E9,F63,F7,F82 --show-source --statistics || true
 
 
   tests:
@@ -44,7 +47,7 @@ jobs:
       - name: Install pytest
         run: pip install pytest
 
-      - name: Dummy test
+      - name: Create dummy test
         run: |
           mkdir -p tests
           echo "def test_ok(): assert True" > tests/test_dummy.py
@@ -59,15 +62,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ✅ Safe Docker step (skip if no Dockerfile)
+      # ✅ Check correct path
       - name: Check Dockerfile exists
         run: |
-          if [ -f docker/backend/Dockerfile ]; then
+          if [ -f Downloads/RenAI-main/docker/backend/Dockerfile ]; then
             echo "Dockerfile found"
           else
             echo "Dockerfile not found, skipping build"
             exit 0
           fi
 
+      # ✅ Build using correct context
       - name: Build Docker image
-        run: docker build -f docker/backend/Dockerfile -t renai-backend .
+        run: |
+          docker build \
+          -f Downloads/RenAI-main/docker/backend/Dockerfile \
+          -t renai-backend \
+          Downloads/RenAI-main
