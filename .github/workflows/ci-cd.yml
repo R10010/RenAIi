@@ -31,9 +31,15 @@ jobs:
     - name: Black check
       run: black --check Downloads/RenAI-main || true
 
-    - name: Flake8 check (only Python files)
+    - name: Flake8 check (safe mode)
       run: |
-        find Downloads/RenAI-main -name "*.py" | xargs flake8 --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 Downloads/RenAI-main \
+        --count \
+        --select=E9,F63,F7,F82 \
+        --show-source \
+        --statistics \
+        --jobs=1 \
+        --exclude=.dvc,__pycache__,data,*.ipynb,*.bin
 
 
   tests:
