@@ -13,6 +13,12 @@ pipeline {
             }
         }
         
+        stage('Install pip') {
+            steps {
+                bat 'C:\\Users\\AKASH\\AppData\\Local\\Programs\\Python\\Python310\\python.exe -m ensurepip --upgrade'
+            }
+        }
+        
         stage('Install Dependencies') {
             steps {
                 bat '''
