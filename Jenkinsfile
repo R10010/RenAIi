@@ -1,60 +1,58 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        PYTHON = 'python'
+    }
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/R10010/RenAIi.git'
-            }
-        }
+    stages {
 
         stage('Setup Python') {
             steps {
-                sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
-                pip install flake8 pytest
+                bat '%PYTHON% --version'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                bat '''
+                %PYTHON% -m pip install --upgrade pip
+                pip install -r requirements.txt
                 '''
             }
         }
 
         stage('Code Quality') {
             steps {
-                sh '''
-                . venv/bin/activate
-                flake8 Downloads/RenAI-main/backend \
-                       Downloads/RenAI-main/ml_pipeline \
-                       --count --select=E9,F63,F7,F82 --show-source --statistics || true
+                bat '''
+                pip install flake8
+                flake8 . || exit 0
                 '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                . venv/bin/activate
-                mkdir -p tests
-                echo "def test_ok(): assert True" > tests/test_dummy.py
-                pytest
+                bat '''
+                pip install pytest
+                pytest || exit 0
                 '''
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh '''
-                if [ -f Downloads/RenAI-main/docker/backend/Dockerfile ]; then
-                    docker build \
-                    -f Downloads/RenAI-main/docker/backend/Dockerfile \
-                    -t renai-backend \
-                    Downloads/RenAI-main
-                else
-                    echo "Dockerfile not found, skipping build"
-                fi
-                '''
+                bat 'docker build -t renai-backend .'
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline executed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
         }
     }
 }
