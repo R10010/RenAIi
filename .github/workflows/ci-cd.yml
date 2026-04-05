@@ -29,10 +29,11 @@ jobs:
         pip install -r Downloads/RenAI-main/requirements-ci.txt
 
     - name: Black check
-      run: black --check . || true
+      run: black --check Downloads/RenAI-main || true
 
-    - name: Flake8 check
-      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    - name: Flake8 check (only Python files)
+      run: |
+        find Downloads/RenAI-main -name "*.py" | xargs flake8 --count --select=E9,F63,F7,F82 --show-source --statistics
 
 
   tests:
